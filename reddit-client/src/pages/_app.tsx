@@ -1,5 +1,6 @@
 import { FC } from 'react'
-  
+import { ChakraProvider } from '@chakra-ui/react'
+
 interface Props {
   Component: any;
   pageProps: any;
@@ -7,7 +8,9 @@ interface Props {
 
 const _app: FC<Props> = ({ Component, pageProps }) => {
 return (
-  <Component {...pageProps} />
+  <ChakraProvider>
+    <Component {...pageProps} />
+  </ChakraProvider>
 )}
 
 export default _app
