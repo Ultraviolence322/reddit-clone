@@ -28,6 +28,9 @@ class UserResponse {
 
   @Field({nullable: true})
   user?: User
+
+  @Field({nullable: true})
+  cookie_token?: string
 }
 
 @Resolver()
@@ -73,7 +76,7 @@ export class UserResolver {
       }
     }
 
-    return {user}
+    return {user, cookie_token: argon2d.hash(user.username + Date.now())} 
   }
 
   @Mutation(() => UserResponse)
@@ -98,11 +101,11 @@ export class UserResolver {
       return {
         error: {
           field: 'password',
-          message: "incorrect password"
+          message: "incorrect password",
         }
       }
     }
 
-    return {user} 
+    return {user, cookie_token: argon2d.hash(user.username + Date.now())} 
   }
 }
