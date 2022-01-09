@@ -3,17 +3,22 @@ import { Form, Formik } from 'formik'
 import { FC } from 'react'
 import InputField from '../components/InputField'
 import Wrapper from '../components/Wrapper'
+import { useRegisterMutation } from '../generated/graphql'
   
 interface Props {
 
 }
 
+
 const register: FC<Props> = ({}) => {
+  const [_, register] = useRegisterMutation();
+
   return (
     <Formik
       initialValues={{username: '', password: ''}}
-      onSubmit={(values, actions) => {
+      onSubmit={async (values, actions) => {
         console.log('values', values);
+        const response = await register(values)
       }}
     >
       {({isSubmitting, }) => (
