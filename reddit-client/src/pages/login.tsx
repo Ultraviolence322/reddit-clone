@@ -1,34 +1,37 @@
 import { Button, Heading } from '@chakra-ui/react'
 import { Form, Formik } from 'formik'
-import Cookies from 'js-cookie'
 import { useRouter } from 'next/router'
 import { FC } from 'react'
 import InputField from '../components/InputField'
 import Wrapper from '../components/Wrapper'
-import { useRegisterMutation } from '../generated/graphql'
+import { useLoginMutation } from '../generated/graphql'
 import mapToError from '../utils/mapToError'
+import Cookies from 'js-cookie'
   
 interface Props {
 
 }
 
-const register: FC<Props> = ({}) => {
-  const [_, register] = useRegisterMutation();
+const login: FC<Props> = ({}) => {
+  const [_, login] = useLoginMutation();
   const router = useRouter()
 
   return (
     <>
-      <Heading as="h1">Register</Heading>
+      <Heading as="h1">Login</Heading>
       <Formik
         initialValues={{username: '', password: ''}}
         onSubmit={async (values, {setErrors}) => {
-          const response = await register(values)
+          console.log('values', values);
+          const response = await login(values)
+          console.log('response', response);
           
-          if(response?.data?.register.error?.field) {
-            setErrors(mapToError(response?.data?.register.error))
+          
+          if(response.data?.login.error?.field) {
+            setErrors(mapToError(response?.data?.login.error))
           } else {
-            if(response.data?.register.cookie_token) {
-              Cookies.set('reddituid', response.data?.register.cookie_token)
+            if(response.data?.login.cookie_token) {
+              Cookies.set('reddituid', response.data?.login.cookie_token)
               router.push('/')
             }
           }
@@ -62,8 +65,7 @@ const register: FC<Props> = ({}) => {
 
       </Formik>
     </>
-    
   )
 }
 
-export default register
+export default login
