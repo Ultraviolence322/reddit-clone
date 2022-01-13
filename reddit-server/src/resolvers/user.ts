@@ -1,7 +1,21 @@
 import argon2d from "argon2";
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Resolver} from "type-graphql";
+import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver} from "type-graphql";
+import CryptoJS from 'crypto-js'
+
+const parseCookie = (str: string): any => {
+  const result: any = {}
+  
+  str
+  .split(';')
+  .map(v => v.split('='))
+  .forEach(e => {
+    result[e[0].trim()] = e[1].trim() 
+  })
+
+  return result
+}
 
 @InputType()
 class UsernamePasswordInput {
@@ -35,6 +49,25 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { em, req }: MyContext) {
+    const cookies = parseCookie(req.headers.cookie)
+
+    if(cookies.reddituid) {
+      const bytes  = CryptoJS.AES.decrypt(
+        cookies.reddituid, 
+        process.env.SECRET_KEY_TO_ENCODE_USER_ID?.toString() || '123haha'
+      );
+      const originalUserID = bytes.toString(CryptoJS.enc.Utf8);
+
+      const user = await em.findOne(User, {id: +originalUserID})
+
+      return user
+    }
+
+    return null
+  }
+
   @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UsernamePasswordInput,
@@ -77,7 +110,13 @@ export class UserResolver {
       }
     }
 
-    return {user, cookie_token: argon2d.hash(user.username + Date.now())} 
+    return {
+      user, 
+      cookie_token: CryptoJS.AES.encrypt(
+        user.id.toString(), 
+        process.env.SECRET_KEY_TO_ENCODE_USER_ID?.toString() || '123haha'
+      ).toString()
+    } 
   }
 
   @Mutation(() => UserResponse)
@@ -90,7 +129,7 @@ export class UserResolver {
     if(!user) {
       return {
         error: {
-          field: 'user',
+          field: 'username',
           message: "user does't exist"
         }
       }
@@ -107,6 +146,12 @@ export class UserResolver {
       }
     }
 
-    return {user, cookie_token: argon2d.hash(user.username + Date.now())} 
+    return {
+      user, 
+      cookie_token: CryptoJS.AES.encrypt(
+        user.id.toString(), 
+        process.env.SECRET_KEY_TO_ENCODE_USER_ID?.toString() || '123haha'
+      ).toString()
+    } 
   }
 }
