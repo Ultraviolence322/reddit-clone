@@ -3,19 +3,7 @@ import { User } from "../entities/User";
 import { MyContext } from "src/types";
 import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver} from "type-graphql";
 import CryptoJS from 'crypto-js'
-
-const parseCookie = (str: string): any => {
-  const result: any = {}
-  
-  str
-  .split(';')
-  .map(v => v.split('='))
-  .forEach(e => {
-    result[e[0].trim()] = e[1].trim() 
-  })
-
-  return result
-}
+import { parseCookie } from "../utils/parseCookie";
 
 @InputType()
 class UsernamePasswordInput {
@@ -153,5 +141,10 @@ export class UserResolver {
         process.env.SECRET_KEY_TO_ENCODE_USER_ID?.toString() || '123haha'
       ).toString()
     } 
+  }
+
+  @Mutation(() => Boolean)
+  logout(){
+    return true
   }
 }
