@@ -22,9 +22,9 @@ const register: FC<Props> = ({}) => {
     <>
       <Heading as="h1">Register</Heading>
       <Formik
-        initialValues={{username: '', password: ''}}
+        initialValues={{username: '', email: '', password: ''}}
         onSubmit={async (values, {setErrors}) => {
-          const response = await register(values)
+          const response = await register({options: values})
           
           if(response?.data?.register.error?.field) {
             setErrors(mapToError(response?.data?.register.error))
@@ -39,6 +39,11 @@ const register: FC<Props> = ({}) => {
         {({isSubmitting, }) => (
           <Wrapper>
             <Form>
+              <InputField 
+                name="email"
+                placeholder='Email'
+                label='Email'
+              />
               <InputField 
                 name="username"
                 placeholder='Username'

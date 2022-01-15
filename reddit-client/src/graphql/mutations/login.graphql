@@ -1,7 +1,7 @@
-mutation Login($username: String!, $password: String!){
+mutation Login($usernameOrEmail: String!, $password: String!){
   login(
-    options: 
-    	{username: $username, password: $password}
+    usernameOrEmail: $usernameOrEmail,
+    password: $password
   ){
     error{
       field
@@ -9,6 +9,7 @@ mutation Login($username: String!, $password: String!){
     }
     user{
       id
+      email
       username
     }
     cookie_token

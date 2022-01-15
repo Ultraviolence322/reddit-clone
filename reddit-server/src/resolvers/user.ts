@@ -1,18 +1,11 @@
 import argon2d from "argon2";
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver} from "type-graphql";
+import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver} from "type-graphql";
 import CryptoJS from 'crypto-js'
 import { parseCookie } from "../utils/parseCookie";
-
-@InputType()
-class UsernamePasswordInput {
-  @Field()
-  username: string
-
-  @Field()
-  password: string
-}
+import { UsernamePasswordInput } from "../utils/UsernamePasswordInput";
+import { validRegister } from "../utils/validRegister";
 
 @ObjectType()
 class ErrorField {
@@ -37,6 +30,15 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  // @Mutation(() => Boolean)
+  // async forgotPassword(
+  //   // @Arg("email") email: string,
+  //   // @Ctx() { em }: MyContext 
+  // ) {
+  //   // const user = await em.findOne(User, { email })
+  //   return true
+  // }
+
   @Query(() => User, { nullable: true })
   async me(@Ctx() { em, req }: MyContext) {
     const cookies = parseCookie(req.headers.cookie)
@@ -61,27 +63,13 @@ export class UserResolver {
     @Arg("options") options: UsernamePasswordInput,
     @Ctx() {em}: MyContext
   ) {
-    if(options.username.length <= 2) {
-      return {
-        error: {
-          field: 'username',
-          message: "username length should be greater than 2"
-        }
-      }
-    }
-
-    if(options.password.length <= 2) {
-      return {
-        error: {
-          field: 'password',
-          message: "password length should be greater than 2"
-        }
-      }
-    }
+    const validResponse = validRegister(options)
+    if (validResponse) return {error: validResponse} 
 
     const hashedPassword = await argon2d.hash(options.password) 
     const user = em.create(User, {
       username: options.username,
+      email: options.email,
       password: hashedPassword
     })
 
@@ -109,21 +97,22 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async login(
-    @Arg("options") options: UsernamePasswordInput,
+    @Arg("usernameOrEmail") usernameOrEmail: string,
+    @Arg("password") password: string,
     @Ctx() {em}: MyContext
   ) {
-    const user = await em.findOne(User, {username: options.username})
+    const user = await em.findOne(User, usernameOrEmail.includes("@") ? {email: usernameOrEmail} : {username: usernameOrEmail})
 
     if(!user) {
       return {
         error: {
-          field: 'username',
-          message: "user does't exist"
+          field: 'usernameOrEmail',
+          message: "user doesn't exist"
         }
       }
     }
 
-    const valid = await argon2d.verify(user.password, options.password)
+    const valid = await argon2d.verify(user.password, password)
 
     if(!valid) {
       return {
