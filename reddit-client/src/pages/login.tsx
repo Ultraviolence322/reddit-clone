@@ -7,6 +7,8 @@ import Wrapper from '../components/Wrapper'
 import { useLoginMutation } from '../generated/graphql'
 import mapToError from '../utils/mapToError'
 import Cookies from 'js-cookie'
+import { withUrqlClient } from 'next-urql'
+import { createURQLClient } from '../utils/createURQLClient'
   
 interface Props {
 
@@ -22,10 +24,7 @@ const login: FC<Props> = ({}) => {
       <Formik
         initialValues={{username: '', password: ''}}
         onSubmit={async (values, {setErrors}) => {
-          console.log('values', values);
           const response = await login(values)
-          console.log('response', response);
-          
           
           if(response.data?.login.error?.field) {
             setErrors(mapToError(response?.data?.login.error))
@@ -68,4 +67,4 @@ const login: FC<Props> = ({}) => {
   )
 }
 
-export default login
+export default withUrqlClient(createURQLClient)(login)  

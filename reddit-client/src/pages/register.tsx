@@ -1,11 +1,13 @@
 import { Button, Heading } from '@chakra-ui/react'
 import { Form, Formik } from 'formik'
 import Cookies from 'js-cookie'
+import { withUrqlClient } from 'next-urql'
 import { useRouter } from 'next/router'
 import { FC } from 'react'
 import InputField from '../components/InputField'
 import Wrapper from '../components/Wrapper'
 import { useRegisterMutation } from '../generated/graphql'
+import { createURQLClient } from '../utils/createURQLClient'
 import mapToError from '../utils/mapToError'
   
 interface Props {
@@ -66,4 +68,4 @@ const register: FC<Props> = ({}) => {
   )
 }
 
-export default register
+export default withUrqlClient(createURQLClient)(register)  

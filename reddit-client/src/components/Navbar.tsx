@@ -3,17 +3,21 @@ import Cookies from 'js-cookie'
 import NextLink from 'next/link'
 import { FC } from 'react'
 import { useLogoutMutation, useMeQuery } from '../generated/graphql'
+import { isServer } from '../utils/isServer'
   
 interface Props {
 
 }
 
 const Navbar: FC<Props> = ({}) => {
-  const [{data, fetching}] = useMeQuery()
+  const [{data, fetching}] = useMeQuery({
+    pause: isServer()
+  })
+  
   const [{fetching: logoutFetching}, logout] = useLogoutMutation()
   let body = null
   
-  if(fetching) {
+  if(fetching || isServer()) {
 
   } else if(data?.me?.username) {
     body = (
@@ -37,9 +41,7 @@ const Navbar: FC<Props> = ({}) => {
 
   return (
     <Flex bg="tomato" p={4}>
-      <Box ml="auto" > 
-        {body}
-      </Box>
+      <Box ml="auto">{body}</Box>
     </Flex>
   )
 }
