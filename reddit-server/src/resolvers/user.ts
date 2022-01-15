@@ -6,6 +6,8 @@ import CryptoJS from 'crypto-js'
 import { parseCookie } from "../utils/parseCookie";
 import { UsernamePasswordInput } from "../utils/UsernamePasswordInput";
 import { validRegister } from "../utils/validRegister";
+import {v4} from "uuid"
+import { sendEmail } from "../utils/sendEmail";
 
 @ObjectType()
 class ErrorField {
@@ -30,14 +32,74 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
-  // @Mutation(() => Boolean)
-  // async forgotPassword(
-  //   // @Arg("email") email: string,
-  //   // @Ctx() { em }: MyContext 
-  // ) {
-  //   // const user = await em.findOne(User, { email })
-  //   return true
-  // }
+  @Mutation(() => UserResponse)
+  async changePassword(
+    @Arg("newPassword") newPassword: string,
+    @Arg("token") token: string,
+    @Ctx() {em, req}: MyContext
+  ) {
+    if (newPassword.length <= 2) {
+      return {
+        error: {
+          field: 'newPassword',
+          message: "password length should be greater than 2"
+        }
+      };
+    }
+    
+    if(!req.session.forgetPassword) req.session.forgetPassword = {}
+    const userId = req.session.forgetPassword[token]
+    
+    if(!userId) {
+      return {
+        error: {
+          field: 'token',
+          message: "token doesn't exist or expired",
+        }
+      }
+    }
+
+    const user = await em.findOne(User, {id: userId})
+    if(!user) {
+      return {
+        error: {
+          field: 'token',
+          message: "user is no longer exist",
+        }
+      }
+    }
+
+    user.password = await argon2d.hash(newPassword) 
+    await em.persistAndFlush(user)
+    
+    req.session.forgetPassword[token] = null
+
+    return {user}
+  }
+
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() { em, req }: MyContext 
+  ) {
+    const user = await em.findOne(User, { email })
+
+    if(!user) return true
+
+    const token = v4()
+    if(!req.session.forgetPassword) {
+      req.session.forgetPassword = {}
+    }
+    req.session.forgetPassword[token] = user.id
+
+    await sendEmail(
+      email,
+      `<a href="http://localhost:3000/change-password/${token}">
+        reset password
+      </a>`
+    )
+    return true
+  }
 
   @Query(() => User, { nullable: true })
   async me(@Ctx() { em, req }: MyContext) {

@@ -9,12 +9,19 @@ import { HelloResolver } from './resolvers/hello'
 import { PostResolver } from './resolvers/post'
 import { UserResolver } from './resolvers/user'
 import cors from 'cors'
+import session from 'express-session'
 
 const main = async () => {
   const orm = await MikroORM.init(mikroOrmConfig)
   await orm.getMigrator().up();
 
   const app = express()
+
+  app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true
+  }))
 
   app.use(
     cors({

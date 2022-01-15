@@ -1,12 +1,12 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { FC } from 'react';
+import { NextPage } from 'next';
 
 interface Props {
   Component: any;
   pageProps: any;
 }
 
-const _app: FC<Props> = ({ Component, pageProps }) => {
+const _app: NextPage<Props> = ({ Component, pageProps }) => {
 return (
   <ChakraProvider>
     <Component {...pageProps} />

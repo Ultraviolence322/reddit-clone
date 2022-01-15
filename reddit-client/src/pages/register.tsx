@@ -3,7 +3,7 @@ import { Form, Formik } from 'formik'
 import Cookies from 'js-cookie'
 import { withUrqlClient } from 'next-urql'
 import { useRouter } from 'next/router'
-import { FC } from 'react'
+import { NextPage } from 'next'
 import InputField from '../components/InputField'
 import Wrapper from '../components/Wrapper'
 import { useRegisterMutation } from '../generated/graphql'
@@ -14,7 +14,7 @@ interface Props {
 
 }
 
-const register: FC<Props> = ({}) => {
+const register: NextPage<Props> = ({}) => {
   const [_, register] = useRegisterMutation();
   const router = useRouter()
 

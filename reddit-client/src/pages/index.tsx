@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { NextPage } from 'next'
 import {withUrqlClient} from 'next-urql'
 import Navbar from '../components/Navbar'
 import { createURQLClient } from '../utils/createURQLClient'
@@ -8,7 +8,7 @@ interface Props {
 
 }
 
-const index: FC<Props> = ({}) => {
+const index: NextPage<Props> = ({}) => {
   const [{data, fetching}] = usePostsQuery()
 
   return (
