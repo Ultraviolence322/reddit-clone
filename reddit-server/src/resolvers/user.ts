@@ -8,6 +8,7 @@ import { UsernamePasswordInput } from "../utils/UsernamePasswordInput";
 import { validRegister } from "../utils/validRegister";
 import {v4} from "uuid"
 import { sendEmail } from "../utils/sendEmail";
+import { getConnection } from "typeorm";
 
 @ObjectType()
 class ErrorField {
@@ -36,7 +37,7 @@ export class UserResolver {
   async changePassword(
     @Arg("newPassword") newPassword: string,
     @Arg("token") token: string,
-    @Ctx() {em, req}: MyContext
+    @Ctx() {req}: MyContext
   ) {
     if (newPassword.length <= 2) {
       return {
@@ -59,7 +60,7 @@ export class UserResolver {
       }
     }
 
-    const user = await em.findOne(User, {id: userId})
+    const user = await User.findOne(userId)
     if(!user) {
       return {
         error: {
@@ -69,8 +70,9 @@ export class UserResolver {
       }
     }
 
-    user.password = await argon2d.hash(newPassword) 
-    await em.persistAndFlush(user)
+    await User.update({id: userId}, {
+      password: await argon2d.hash(newPassword) 
+    })
     
     req.session.forgetPassword[token] = null
 
@@ -80,9 +82,9 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async forgotPassword(
     @Arg("email") email: string,
-    @Ctx() { em, req }: MyContext 
+    @Ctx() { req }: MyContext 
   ) {
-    const user = await em.findOne(User, { email })
+    const user = await User.findOne({ where: {email}})
 
     if(!user) return true
 
@@ -102,7 +104,7 @@ export class UserResolver {
   }
 
   @Query(() => User, { nullable: true })
-  async me(@Ctx() { em, req }: MyContext) {
+  async me(@Ctx() { req }: MyContext) {
     const cookies = parseCookie(req.headers.cookie)
 
     if(cookies.reddituid) {
@@ -112,7 +114,11 @@ export class UserResolver {
       );
       const originalUserID = bytes.toString(CryptoJS.enc.Utf8);
 
-      const user = await em.findOne(User, {id: +originalUserID})
+      const user = await User.findOne({
+        where: {
+          id: +originalUserID
+        }
+      })
 
       return user
     }
@@ -123,26 +129,35 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UsernamePasswordInput,
-    @Ctx() {em}: MyContext
   ) {
     const validResponse = validRegister(options)
     if (validResponse) return {error: validResponse} 
 
     const hashedPassword = await argon2d.hash(options.password) 
-    const user = em.create(User, {
-      username: options.username,
-      email: options.email,
-      password: hashedPassword
-    })
-
+    
+    let user = {} as any
     try {
-      await em.persistAndFlush(user)
+      const result = await getConnection()
+      .createQueryBuilder()
+      .insert()
+      .into(User)
+      .values([
+        {
+          username: options.username,
+          email: options.email,
+          password: hashedPassword
+        }
+      ])
+      .returning('*')
+      .execute();
+
+      user = result.raw[0]
     } catch (error) {
       if(error.code === '23505') {
         return {
           error: {
             field: 'username',
-            message: "user already exist"
+            message: "user already exist, maybe email is reserved"
           }
         }
       }
@@ -161,9 +176,8 @@ export class UserResolver {
   async login(
     @Arg("usernameOrEmail") usernameOrEmail: string,
     @Arg("password") password: string,
-    @Ctx() {em}: MyContext
   ) {
-    const user = await em.findOne(User, usernameOrEmail.includes("@") ? {email: usernameOrEmail} : {username: usernameOrEmail})
+    const user = await User.findOne(usernameOrEmail.includes("@") ? {where: {email: usernameOrEmail}} : {where: {username: usernameOrEmail}})
 
     if(!user) {
       return {
