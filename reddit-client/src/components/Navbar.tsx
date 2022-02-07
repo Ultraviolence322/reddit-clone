@@ -1,5 +1,4 @@
 import { Box, Button, Flex, Link } from '@chakra-ui/react'
-import Cookies from 'js-cookie'
 import NextLink from 'next/link'
 import { FC } from 'react'
 import { useLogoutMutation, useMeQuery } from '../generated/graphql'
