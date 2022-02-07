@@ -23,7 +23,7 @@ const Navbar: FC<Props> = ({}) => {
     body = (
       <>
         {data?.me?.username}
-        <Button variant="link" isLoading={logoutFetching} ml="2" onClick={() => {logout(); Cookies.remove('reddituid', {path: ''})}}>Logout</Button>
+        <Button variant="link" isLoading={logoutFetching} ml="2" onClick={() => logout()}>Logout</Button>
       </>
     )  
   } else if (!data?.me){

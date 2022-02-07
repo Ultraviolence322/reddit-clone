@@ -3,12 +3,12 @@ import { User } from "../entities/User";
 import { MyContext } from "src/types";
 import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver} from "type-graphql";
 import CryptoJS from 'crypto-js'
-import { parseCookie } from "../utils/parseCookie";
 import { UsernamePasswordInput } from "../utils/UsernamePasswordInput";
 import { validRegister } from "../utils/validRegister";
 import {v4} from "uuid"
 import { sendEmail } from "../utils/sendEmail";
 import { getConnection } from "typeorm";
+import { getUserIdFromCookie } from "../utils/getUserIdFromCookie";
 
 @ObjectType()
 class ErrorField {
@@ -105,25 +105,19 @@ export class UserResolver {
 
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req }: MyContext) {
-    const cookies = parseCookie(req.headers.cookie)
-
-    if(cookies.reddituid) {
-      const bytes  = CryptoJS.AES.decrypt(
-        cookies.reddituid, 
-        process.env.SECRET_KEY_TO_ENCODE_USER_ID?.toString() || '123haha'
-      );
-      const originalUserID = bytes.toString(CryptoJS.enc.Utf8);
-
+    const originalUserID = getUserIdFromCookie(req)
+    
+    if(originalUserID) {
       const user = await User.findOne({
         where: {
-          id: +originalUserID
+          id: originalUserID
         }
       })
 
       return user
+    } else {
+      return null
     }
-
-    return null
   }
 
   @Mutation(() => UserResponse)
@@ -209,7 +203,10 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  logout(){
+  logout(
+    @Ctx() { res }: MyContext
+  ){
+    res.clearCookie('reddituid')
     return true
   }
 }
