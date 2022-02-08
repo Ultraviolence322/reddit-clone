@@ -19,8 +19,8 @@ const createPost: FC<Props> = ({}) => {
   useIsAuth()
 
   return (
-    <>
-      <Heading as="h1">Create Post</Heading>
+    <Wrapper>
+      <Heading my={8} as="h1">Create Post</Heading>
       <Formik
         initialValues={{title: '', text: ''}}
         onSubmit={async (values, {setErrors}) => {
@@ -29,7 +29,6 @@ const createPost: FC<Props> = ({}) => {
         }}
       >
         {({isSubmitting,}) => (
-          <Wrapper>
             <Form>
               <InputField 
                 name="title"
@@ -51,11 +50,10 @@ const createPost: FC<Props> = ({}) => {
                 Create post
               </Button>
             </Form>
-          </Wrapper>
         )}
 
       </Formik>
-    </>  
+    </Wrapper>
   )
 }
 

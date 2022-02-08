@@ -78,6 +78,7 @@ export type Post = {
   id: Scalars['Float'];
   point: Scalars['Float'];
   text: Scalars['String'];
+  textSnippet: Scalars['String'];
   title: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -181,7 +182,7 @@ export type PostsQueryVariables = Exact<{
 }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', id: number, createdAt: string, updatedAt: string, title: string, text: string }> };
+export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', id: number, createdAt: string, updatedAt: string, title: string, text: string, textSnippet: string }> };
 
 
 export const ChangePasswordDocument = gql`
@@ -297,6 +298,7 @@ export const PostsDocument = gql`
     updatedAt
     title
     text
+    textSnippet
   }
 }
     `;

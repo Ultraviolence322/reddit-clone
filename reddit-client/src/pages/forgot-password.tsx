@@ -17,8 +17,8 @@ const forgotPassword: NextPage<Props> = ({}) => {
   const [doneMessage, setDoneMessage] = useState('')
 
   return (
-    <>
-      <Heading as="h1">Forgot password</Heading>
+    <Wrapper>
+      <Heading my={8} as="h1">Forgot password</Heading>
       <Formik
         initialValues={{email: ''}}
         onSubmit={async (values, {setErrors}) => {
@@ -27,8 +27,7 @@ const forgotPassword: NextPage<Props> = ({}) => {
         }}
       >
         {({isSubmitting, }) => (
-          <Wrapper>
-            {doneMessage 
+            doneMessage 
               ? doneMessage
               : <Form>
                   <InputField 
@@ -45,11 +44,9 @@ const forgotPassword: NextPage<Props> = ({}) => {
                     Submit
                   </Button>
                 </Form>
-            }
-          </Wrapper>
-        )}
+            )}
       </Formik>
-    </>
+    </Wrapper>
   )
 }
 

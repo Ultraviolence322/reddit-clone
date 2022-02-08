@@ -21,8 +21,8 @@ const login: NextPage<Props> = ({}) => {
   const pushPath = router.query.next ? router.query.next.toString() : '/'
 
   return (
-    <>
-      <Heading as="h1">Login</Heading>
+    <Wrapper>
+      <Heading my={8} as="h1">Login</Heading>
       <Formik
         initialValues={{usernameOrEmail: '', password: ''}}
         onSubmit={async (values, {setErrors}) => {
@@ -39,7 +39,6 @@ const login: NextPage<Props> = ({}) => {
         }}
       >
         {({isSubmitting, }) => (
-          <Wrapper>
             <Form>
               <InputField 
                 name="usernameOrEmail"
@@ -66,11 +65,10 @@ const login: NextPage<Props> = ({}) => {
                 Submit
               </Button>
             </Form>
-          </Wrapper>
         )}
 
       </Formik>
-    </>
+    </Wrapper>
   )
 }
 

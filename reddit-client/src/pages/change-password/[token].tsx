@@ -22,8 +22,8 @@ const changePassword: NextPage<Props> = ({token}) => {
   const [, changePassword] = useChangePasswordMutation()
 
   return (
-    <>
-      <Heading as="h1">Change password</Heading>
+    <Wrapper>
+      <Heading my={8} as="h1">Change password</Heading>
       <Formik
         initialValues={{newPassword: '', token}}
         onSubmit={async (values, {setErrors}) => {
@@ -40,7 +40,6 @@ const changePassword: NextPage<Props> = ({token}) => {
         }}
       >
         {({isSubmitting, }) => (
-          <Wrapper>
             <Form>
               <InputField 
                 name="newPassword"
@@ -67,11 +66,10 @@ const changePassword: NextPage<Props> = ({token}) => {
                 Change password
               </Button>
             </Form>
-          </Wrapper>
         )}
 
       </Formik>
-    </>
+    </Wrapper>
   )
 }
 

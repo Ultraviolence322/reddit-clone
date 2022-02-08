@@ -19,8 +19,8 @@ const register: NextPage<Props> = ({}) => {
   const router = useRouter()
 
   return (
-    <>
-      <Heading as="h1">Register</Heading>
+    <Wrapper>
+      <Heading my={8} as="h1">Register</Heading>
       <Formik
         initialValues={{username: '', email: '', password: ''}}
         onSubmit={async (values, {setErrors}) => {
@@ -37,7 +37,6 @@ const register: NextPage<Props> = ({}) => {
         }}
       >
         {({isSubmitting, }) => (
-          <Wrapper>
             <Form>
               <InputField 
                 name="email"
@@ -64,12 +63,10 @@ const register: NextPage<Props> = ({}) => {
                 Submit
               </Button>
             </Form>
-          </Wrapper>
         )}
 
       </Formik>
-    </>
-    
+    </Wrapper>
   )
 }
 
