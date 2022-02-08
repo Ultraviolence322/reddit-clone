@@ -11,7 +11,11 @@ interface Props {
 }
 
 const index: NextPage<Props> = ({}) => {
-  const [{data, fetching}] = usePostsQuery()
+  const [{data, fetching}] = usePostsQuery({
+    variables: {
+      limit: 2
+    }
+  })
 
   return (
     <div>

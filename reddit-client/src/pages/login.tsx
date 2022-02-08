@@ -18,6 +18,7 @@ interface Props {
 const login: NextPage<Props> = ({}) => {
   const [_, login] = useLoginMutation();
   const router = useRouter()
+  const pushPath = router.query.next ? router.query.next.toString() : '/'
 
   return (
     <>
@@ -32,7 +33,7 @@ const login: NextPage<Props> = ({}) => {
           } else {
             if(response.data?.login.cookie_token) {
               Cookies.set('reddituid', response.data?.login.cookie_token)
-              router.push('/')
+              router.push(pushPath)
             }
           }
         }}
