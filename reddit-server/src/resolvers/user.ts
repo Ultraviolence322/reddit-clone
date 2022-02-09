@@ -1,7 +1,7 @@
 import argon2d from "argon2";
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver} from "type-graphql";
+import { Arg, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root} from "type-graphql";
 import CryptoJS from 'crypto-js'
 import { UsernamePasswordInput } from "../utils/UsernamePasswordInput";
 import { validRegister } from "../utils/validRegister";
@@ -31,8 +31,20 @@ class UserResponse {
   cookie_token?: string
 }
 
-@Resolver()
+
+
+@Resolver(User)
 export class UserResolver {
+  @FieldResolver(() => String)
+  email(@Root() user: User, @Ctx() {req}: MyContext) {
+    const currentUserId = getUserIdFromCookie(req)
+    if(currentUserId === user.id) {
+      return user.email
+    }
+
+    return ""
+  }
+
   @Mutation(() => UserResponse)
   async changePassword(
     @Arg("newPassword") newPassword: string,
