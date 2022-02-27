@@ -11,6 +11,7 @@ import session from 'express-session'
 import { createConnection } from 'typeorm'
 import { Post } from './entities/Post'
 import { User } from './entities/User'
+import { Updoot } from './entities/Updoot'
 
 const main = async () => {
   await createConnection({
@@ -22,7 +23,8 @@ const main = async () => {
     logging: true,
     entities: [
       Post,
-      User
+      User,
+      Updoot
     ],
   })
 
