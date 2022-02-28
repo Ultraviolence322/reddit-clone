@@ -5,7 +5,7 @@ mutation createPost($input: PostInput!){
     id
     title
     text
-    point
+    points
     creatorId
     updatedAt
     createdAt
