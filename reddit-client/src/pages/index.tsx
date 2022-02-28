@@ -7,6 +7,7 @@ import NextLink from 'next/link'
 import { Box, Button, Flex, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import Wrapper from '../components/Wrapper'
 import { useState } from 'react'
+import UpdootSection from '../components/UpdootSection'
   
 interface Props {
 
@@ -33,9 +34,14 @@ const index: NextPage<Props> = ({}) => {
         <Stack spacing={8}>
           {data && !fetching 
             ? data.posts.posts.map(post => <Box key={post.id} p={5} shadow='md' borderWidth='1px'>
-              <Heading fontSize='xl'>{post.title}</Heading>
-              <Text mt={4}>{post.textSnippet}</Text>
-              <Text mt={8}>Author: {post.creator.username}</Text>
+              <Flex>
+                <UpdootSection post={post} />
+                <Box>
+                  <Heading fontSize='xl'>{post.title}</Heading>
+                  <Text mt={4}>{post.textSnippet}</Text>
+                  <Text mt={8}>Author: {post.creator.username}</Text>
+                </Box>
+              </Flex>
             </Box>
 
             ) 
