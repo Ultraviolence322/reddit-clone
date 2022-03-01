@@ -3,10 +3,10 @@ import CryptoJS from 'crypto-js'
 
 export const getUserIdFromCookie = (
   req: Request & { headers: Headers & { cookie: string; }; }
-) => {
-  const cookies = parseCookie(req.headers.cookie);
+) => {  
+  const cookies = req.headers.cookie && parseCookie(req.headers.cookie);
   
-  if (cookies.reddituid) {
+  if (cookies?.reddituid) {
     const bytes = CryptoJS.AES.decrypt(
       cookies.reddituid,
       process.env.SECRET_KEY_TO_ENCODE_USER_ID?.toString() || '123haha'

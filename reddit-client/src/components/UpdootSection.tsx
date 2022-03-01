@@ -9,7 +9,8 @@ interface Props {
 
 const UpdootSection: FC<Props> = ({post}) => {
   const [{fetching}, vote] = useVoteMutation()
-
+  // console.log('post', post);
+  
   return (
     <Flex 
       direction={'column'} 
@@ -18,6 +19,7 @@ const UpdootSection: FC<Props> = ({post}) => {
       mr={4}
     >
       <Button 
+        disabled={post.voteStatus === 1}
         onClick={() => vote({
           value: 1,
           postId: post.id
@@ -28,6 +30,7 @@ const UpdootSection: FC<Props> = ({post}) => {
       </Button>
         {post.points}
       <Button 
+      disabled={post.voteStatus === -1}
         onClick={() => vote({
           value: -1,
           postId: post.id

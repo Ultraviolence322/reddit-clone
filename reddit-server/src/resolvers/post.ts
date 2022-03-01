@@ -91,15 +91,26 @@ export class PostResolver {
   async posts(
     @Arg("limit", () => Int) limit: number,
     @Arg("cursor", () => String, {nullable: true}) cursor: string,
+    @Ctx() {req}: MyContext
   ) {
+    console.log('req.headers.cookie', req.headers.cookie);
+
+    const originalUserID = getUserIdFromCookie(req)
     const realLimit = Math.min(50, limit)
     const realLimitPlusOne = Math.min(50, limit) + 1
-    const replacements: any[] = [realLimitPlusOne]
-
+    let replacements: any[] = [realLimitPlusOne]
+    if(originalUserID) {
+      replacements = [realLimitPlusOne, originalUserID]
+    }
+    console.log('originalUserID', originalUserID);
+    
+    console.log('replacements', replacements);
 
     if(cursor) {
       replacements.push(new Date(parseInt(cursor)))
     }
+    console.log('replacements 2', replacements);
+    
     const posts = await getConnection().query(
       `
       select p.*,
@@ -109,10 +120,15 @@ export class PostResolver {
         'email', u.email,
         'createdAt', u."createdAt",
         'updatedAt', u."updatedAt"
-        ) creator
+        ) creator,
+        ${
+          originalUserID
+            ? '(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"'
+            : 'null as "voteStatus"'
+        }
       from post p
       inner join public.user u on u.id = p."creatorId"
-      ${cursor ? `where p."createdAt" < $2` : ""}
+      ${cursor ? `where p."createdAt" < $3` : ""}
       order by p."createdAt" DESC
       limit $1
       `,

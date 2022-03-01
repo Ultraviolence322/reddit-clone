@@ -22,8 +22,6 @@ const index: NextPage<Props> = ({}) => {
     variables
   })
 
-  console.log('fetching', fetching);
-
   return (
     <div>
       <Navbar />
