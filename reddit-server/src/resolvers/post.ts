@@ -102,12 +102,14 @@ export class PostResolver {
     if(originalUserID) {
       replacements = [realLimitPlusOne, originalUserID]
     }
+    let cursorIdx = 3
     console.log('originalUserID', originalUserID);
     
     console.log('replacements', replacements);
 
     if(cursor) {
       replacements.push(new Date(parseInt(cursor)))
+      cursorIdx = replacements.length
     }
     console.log('replacements 2', replacements);
     
@@ -128,7 +130,7 @@ export class PostResolver {
         }
       from post p
       inner join public.user u on u.id = p."creatorId"
-      ${cursor ? `where p."createdAt" < $3` : ""}
+      ${cursor ? `where p."createdAt" < $${cursorIdx}` : ""}
       order by p."createdAt" DESC
       limit $1
       `,
