@@ -1,13 +1,12 @@
 import { NextPage } from 'next'
 import {withUrqlClient} from 'next-urql'
-import Navbar from '../components/Navbar'
 import { createURQLClient } from '../utils/createURQLClient'
 import { usePostsQuery } from '../generated/graphql'
 import NextLink from 'next/link'
 import { Box, Button, Flex, Heading, Link, Stack, Text } from '@chakra-ui/react'
-import Wrapper from '../components/Wrapper'
 import { useState } from 'react'
 import UpdootSection from '../components/UpdootSection'
+import MainLayout from '../layouts/MainLayout'
   
 interface Props {
 
@@ -23,10 +22,8 @@ const index: NextPage<Props> = ({}) => {
   })
 
   return (
-    <div>
-      <Navbar />
-      <Wrapper variant="reguar">
-        <NextLink href="/create-post">
+    <MainLayout>
+      <NextLink href="/create-post">
           <Link>Create new post!</Link>
         </NextLink>
         <Stack spacing={8}>
@@ -35,7 +32,11 @@ const index: NextPage<Props> = ({}) => {
               <Flex>
                 <UpdootSection post={post} />
                 <Box>
-                  <Heading fontSize='xl'>{post.title}</Heading>
+                  <NextLink href={`/post/${post.id}`}>
+                    <Link>
+                      <Heading fontSize='xl'>{post.title}</Heading>
+                    </Link>
+                  </NextLink>
                   <Text mt={4}>{post.textSnippet}</Text>
                   <Text mt={8}>Author: {post.creator.username}</Text>
                 </Box>
@@ -61,9 +62,7 @@ const index: NextPage<Props> = ({}) => {
               >Load more</Button>
           }
         </Flex>
-      </Wrapper>
-      
-    </div>
+    </MainLayout>
   )
 }
 
