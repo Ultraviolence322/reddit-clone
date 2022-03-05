@@ -40,6 +40,9 @@ const Navbar: FC<Props> = ({}) => {
 
   return (
     <Flex bg="tomato" p={4}>
+      <NextLink href="/">
+        Clone Of Clone
+      </NextLink>
       <Box ml="auto">{body}</Box>
     </Flex>
   )
