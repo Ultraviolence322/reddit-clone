@@ -181,10 +181,17 @@ export class PostResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
   async deletePost(
-    @Arg("id") id: number,
+    @Arg("id", () => Int) id: number,
+    @Ctx() {req}: MyContext
   ) {
-    await Post.delete(id)
+    const originalUserID = getUserIdFromCookie(req)
+
+    if(originalUserID) {
+      await Post.delete({id, creatorId: originalUserID})
+    }
+    
     return true
   }
 }

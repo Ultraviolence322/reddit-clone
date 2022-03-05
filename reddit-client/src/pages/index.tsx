@@ -1,12 +1,13 @@
 import { NextPage } from 'next'
 import {withUrqlClient} from 'next-urql'
 import { createURQLClient } from '../utils/createURQLClient'
-import { usePostsQuery } from '../generated/graphql'
+import { DeletePostDocument, useDeletePostMutation, usePostsQuery } from '../generated/graphql'
 import NextLink from 'next/link'
 import { Box, Button, Flex, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import UpdootSection from '../components/UpdootSection'
 import MainLayout from '../layouts/MainLayout'
+import { DeleteIcon } from '@chakra-ui/icons'
   
 interface Props {
 
@@ -20,6 +21,13 @@ const index: NextPage<Props> = ({}) => {
   const [{data, fetching}] = usePostsQuery({
     variables
   })
+  const [{fetching: deletingPost}, deletePost] = useDeletePostMutation()
+  const [idForDelete, setIdForDelete] = useState(0)
+
+  const deletePostHandler = async (id: number) => {
+    setIdForDelete(id)
+    await deletePost({id})
+  }
 
   return (
     <MainLayout>
@@ -39,6 +47,15 @@ const index: NextPage<Props> = ({}) => {
                   </NextLink>
                   <Text mt={4}>{post.textSnippet}</Text>
                   <Text mt={8}>Author: {post.creator.username}</Text>
+                </Box>
+                <Box marginLeft={"auto"} marginRight={0}>
+                  <Button 
+                    isLoading={deletingPost && idForDelete === post.id} 
+                    _hover={{backgroundColor: "tomato"}} 
+                    onClick={() => deletePostHandler(post.id)}
+                  >
+                    <DeleteIcon/>
+                  </Button>
                 </Box>
               </Flex>
             </Box>
