@@ -1,13 +1,13 @@
 import { Heading, Box, Button } from '@chakra-ui/react'
 import { Formik, Form } from 'formik'
 import { FC } from 'react'
-import Wrapper from '../components/Wrapper'
 import InputField from '../components/InputField'
 import { useCreatePostMutation } from '../generated/graphql'
 import { withUrqlClient } from 'next-urql'
 import { createURQLClient } from '../utils/createURQLClient'
 import { useRouter } from 'next/router'
 import { useIsAuth } from '../hooks/useIsAuth'
+import MainLayout from '../layouts/MainLayout'
   
 interface Props {
 
@@ -19,7 +19,7 @@ const createPost: FC<Props> = ({}) => {
   useIsAuth()
 
   return (
-    <Wrapper>
+    <MainLayout>
       <Heading my={8} as="h1">Create Post</Heading>
       <Formik
         initialValues={{title: '', text: ''}}
@@ -28,7 +28,7 @@ const createPost: FC<Props> = ({}) => {
           if(!error) router.push('/')
         }}
       >
-        {({isSubmitting,}) => (
+        {({isSubmitting}) => (
             <Form>
               <InputField 
                 name="title"
@@ -51,9 +51,8 @@ const createPost: FC<Props> = ({}) => {
               </Button>
             </Form>
         )}
-
       </Formik>
-    </Wrapper>
+    </MainLayout>
   )
 }
 

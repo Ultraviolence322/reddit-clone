@@ -1,19 +1,22 @@
 import { NextPage } from 'next'
 import {withUrqlClient} from 'next-urql'
 import { createURQLClient } from '../utils/createURQLClient'
-import { DeletePostDocument, useDeletePostMutation, usePostsQuery } from '../generated/graphql'
+import { useDeletePostMutation, useMeQuery, usePostsQuery } from '../generated/graphql'
 import NextLink from 'next/link'
 import { Box, Button, Flex, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import UpdootSection from '../components/UpdootSection'
 import MainLayout from '../layouts/MainLayout'
-import { DeleteIcon } from '@chakra-ui/icons'
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons'
+import { useRouter } from 'next/router'
   
 interface Props {
 
 }
 
 const index: NextPage<Props> = ({}) => {
+  const [{data: meData}] = useMeQuery()
+  const router = useRouter()
   const [variables, setVariables] = useState({
     limit: 33,
     cursor: null as null | string,
@@ -48,15 +51,26 @@ const index: NextPage<Props> = ({}) => {
                   <Text mt={4}>{post.textSnippet}</Text>
                   <Text mt={8}>Author: {post.creator.username}</Text>
                 </Box>
-                <Box marginLeft={"auto"} marginRight={0}>
-                  <Button 
-                    isLoading={deletingPost && idForDelete === post.id} 
-                    _hover={{backgroundColor: "tomato"}} 
-                    onClick={() => deletePostHandler(post.id)}
-                  >
-                    <DeleteIcon/>
-                  </Button>
-                </Box>
+                {
+                  meData?.me?.id === post.creator.id &&
+                  <Flex marginLeft={"auto"} marginRight={0} alignItems="center">
+                    <Button 
+                      marginRight={4}
+                      _hover={{backgroundColor: "orange"}} 
+                      onClick={() => router.push(`/edit-post/${post.id}`)}
+                    >
+                      <EditIcon/>
+                    </Button>
+                    <Button 
+                      isLoading={deletingPost && idForDelete === post.id} 
+                      _hover={{backgroundColor: "tomato"}} 
+                      onClick={() => deletePostHandler(post.id)}
+                    >
+                      <DeleteIcon/>
+                    </Button>
+                  </Flex>
+                }
+                
               </Flex>
             </Box>
 

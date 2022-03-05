@@ -165,19 +165,30 @@ export class PostResolver {
   }
 
   @Mutation(() => Post, {nullable: true})
+  @UseMiddleware(isAuth)
   async updatePost(
-    @Arg("id") id: number,
+    @Arg("id", () => Int) id: number,
     @Arg("title") title: string,
+    @Arg("text") text: string,
+    @Ctx() {req}: MyContext
   ) {
-    const post = await Post.findOne(id)
+    
+    const originalUserID = getUserIdFromCookie(req)
+    const result = await getConnection()
+      .createQueryBuilder()
+      .update(Post)
+      .set({ title, text })
+      .where('id = :id and "creatorId" = :creatorId', {
+        id,
+        creatorId: originalUserID,
+      })
+      .returning("*")
+      .execute();
 
-    if (post) {
-      await Post.update({id}, {title})
-    } else {
-      return null
-    }
+      console.log('result', result);
+      
 
-    return post
+    return result.raw[0];
   }
 
   @Mutation(() => Boolean)
@@ -191,7 +202,7 @@ export class PostResolver {
     if(originalUserID) {
       await Post.delete({id, creatorId: originalUserID})
     }
-    
+
     return true
   }
 }
